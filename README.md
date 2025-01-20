@@ -1,0 +1,1 @@
+# Tinfoil Verifier for JavaScript
