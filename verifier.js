@@ -71,30 +71,30 @@ function verify() {
                         return sigstoreMeasurement;
                     });
 
-                addLog("Fetching nitro attestation");
-                let nitroPromise = fetch(attestationURL)
+                addLog("Fetching enclave attestation");
+                let enclavePromise = fetch(attestationURL)
                     .catch(error => {
-                        addLog("Failed to fetch nitro attestation: " + error);
+                        addLog("Failed to fetch enclave attestation: " + error);
                         throw error;
                     })
                     .then(response => {
-                        if (response.status !== 201) {
-                            let error = `Failed to fetch nitro attestation: ${response.status}`;
+                        if (response.status !== 201 && response.status !== 200) {
+                            let error = `Failed to fetch enclave attestation: ${response.status}`;
                             addLog(error);
                             throw new Error(error);
                         }
                         return response.text();
                     })
-                    .then(nitroAttestation => {
-                        let nitroMeasurement = verifyNitro(nitroAttestation);
-                        addLog("Nitro: " + nitroMeasurement);
-                        return nitroMeasurement;
+                    .then(enclaveAttestation => {
+                        let enclaveMeasurement = verifyEnclave(enclaveAttestation);
+                        addLog("Enclave measurement: " + enclaveMeasurement);
+                        return enclaveMeasurement;
                     });
 
                 // Wait for both to finish and print both
-                Promise.all([sigstorePromise, nitroPromise])
-                    .then(([sigstoreMeasurement, nitroMeasurement]) => {
-                        if (sigstoreMeasurement === nitroMeasurement) {
+                Promise.all([sigstorePromise, enclavePromise])
+                    .then(([sigstoreMeasurement, enclaveMeasurement]) => {
+                        if (sigstoreMeasurement === enclaveMeasurement) {
                             addLog("Verification successful! ✅");
                         } else {
                             throw new Error("Verification failed: measurements do not match");
