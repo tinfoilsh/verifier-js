@@ -48,6 +48,6 @@ func verifyEnclave() js.Func {
 
 func main() {
 	js.Global().Set("verifySigstore", verifyCode())
-	js.Global().Set("verifyNitro", verifyEnclave())
+	js.Global().Set("verifyEnclave", verifyEnclave())
 	<-make(chan struct{})
 }
