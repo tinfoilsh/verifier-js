@@ -1,53 +1,119 @@
-//go:build js && wasm
-// +build js,wasm
+//go:build js
 
 package main
 
 import (
 	_ "embed"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/url"
 	"syscall/js"
 
 	"github.com/tinfoilanalytics/verifier/pkg/attestation"
 	"github.com/tinfoilanalytics/verifier/pkg/sigstore"
+	"github.com/tinfoilanalytics/verifier/pkg/util"
 )
 
-// curl -o trusted_root.json https://tuf-repo-cdn.sigstore.dev/targets/4364d7724c04cc912ce2a6c45ed2610e8d8d1c4dc857fb500292738d4d9c8d2c.trusted_root.json
-//
 //go:embed trusted_root.json
-var trustedRootBytes []byte
+var trustedRootJSON []byte
 
 func verifyCode() js.Func {
-	return js.FuncOf(func(this js.Value, args []js.Value) any {
-		digest := args[0].String()
-		bundleBytes := []byte(args[1].String())
-		repo := args[2].String()
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		handler := js.FuncOf(func(_ js.Value, promiseArgs []js.Value) interface{} {
+			resolve := promiseArgs[0]
+			reject := promiseArgs[1]
 
-		measurement, err := sigstore.VerifyMeasurementAttestation(
-			trustedRootBytes,
-			bundleBytes,
-			digest,
-			repo,
-		)
-		if err != nil {
-			panic(err)
-		}
+			go func() {
+				repo := args[0].String()
+				digest := args[1].String()
 
-		return measurement.Fingerprint()
+				bundleURL := "https://api.github.com/repos/" + repo + "/attestations/sha256:" + digest
+				log.Printf("Fetching bundle from %s...", bundleURL)
+				bundle, err := util.NewFetcher().Get(bundleURL)
+				if err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
+
+				var attestationsData struct {
+					Attestations []struct {
+						Bundle json.RawMessage `json:"bundle"`
+					} `json:"attestations"`
+				}
+				if err := json.Unmarshal(bundle, &attestationsData); err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
+
+				bundleJSON, err := attestationsData.Attestations[0].Bundle.MarshalJSON()
+				if err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
+
+				measurement, err := sigstore.VerifyAttestation(bundleJSON, digest, repo, trustedRootJSON)
+				if err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
+
+				resolve.Invoke(js.ValueOf(measurement.Fingerprint()))
+			}()
+
+			return nil
+		})
+
+		return js.Global().Get("Promise").New(handler)
 	})
 }
 
 func verifyEnclave() js.Func {
-	return js.FuncOf(func(this js.Value, args []js.Value) any {
-		measurement, _, err := attestation.VerifyAttestationJSON([]byte(args[0].String()))
-		if err != nil {
-			panic(err)
-		}
-		return measurement.Fingerprint()
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		handler := js.FuncOf(func(_ js.Value, promiseArgs []js.Value) interface{} {
+			resolve := promiseArgs[0]
+			reject := promiseArgs[1]
+
+			go func() {
+				enclaveHostname := args[0].String()
+
+				var u url.URL
+				u.Scheme = "https"
+				u.Host = enclaveHostname
+				u.Path = "/.well-known/tinfoil-attestation"
+				attestationURL := u.String()
+
+				log.Printf("Fetching attestation from %s...", attestationURL)
+				attDoc, err := util.NewFetcher().Get(attestationURL)
+				if err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
+
+				log.Println("Verifying attestation...")
+				measurements, certFP, err := attestation.VerifyAttestationJSON(attDoc)
+				if err != nil {
+					errorMsg := fmt.Sprintf("Verification failed: %v", err)
+					reject.Invoke(errorMsg)
+					return
+				}
+
+				result := map[string]interface{}{
+					"certificate": fmt.Sprintf("%x", certFP),
+					"measurement": measurements.Fingerprint(),
+				}
+				resolve.Invoke(js.ValueOf(result))
+			}()
+
+			return nil
+		})
+
+		return js.Global().Get("Promise").New(handler)
 	})
 }
 
 func main() {
-	js.Global().Set("verifySigstore", verifyCode())
 	js.Global().Set("verifyEnclave", verifyEnclave())
+	js.Global().Set("verifyCode", verifyCode())
 	<-make(chan struct{})
 }

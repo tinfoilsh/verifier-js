@@ -1,0 +1,9 @@
+113,114c113,117
+< 		args[0].Call("text").Call("then", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+< 			r.Body = []byte(args[0].String())
+---
+> 		args[0].Call("arrayBuffer").Call("then", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+> 			uint8Array := js.Global().Get("Uint8Array").New(args[0])
+> 			length := uint8Array.Length()
+> 			r.Body = make([]byte, length)
+> 			js.CopyBytesToGo(r.Body, uint8Array)

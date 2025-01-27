@@ -2,7 +2,7 @@ module github.com/tinfoilanalytics/verifier-js
 
 go 1.23.2
 
-require github.com/tinfoilanalytics/verifier v0.0.2
+require github.com/tinfoilanalytics/verifier v0.0.7
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
@@ -29,6 +29,8 @@ require (
 	github.com/go-openapi/validate v0.24.0 // indirect
 	github.com/google/certificate-transparency-go v1.2.1 // indirect
 	github.com/google/go-containerregistry v0.20.2 // indirect
+	github.com/google/go-sev-guest v0.0.0-00010101000000-000000000000 // indirect
+	github.com/google/logger v1.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
@@ -88,4 +90,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
+	marwan.io/wasm-fetch v0.1.0 // indirect
 )
+
+replace github.com/google/go-sev-guest => github.com/jraman567/go-sev-guest v0.0.0-20250117204014-6339110611c9

@@ -1,0 +1,13 @@
+//go:build linux || darwin || !windows
+// +build linux darwin !windows
+
+package logger
+
+import (
+	"io"
+	"os"
+)
+
+func setup(src string) (io.Writer, io.Writer, io.Writer, error) {
+	return os.Stdout, os.Stdout, os.Stdout, nil
+}

@@ -1,14 +1,13 @@
 all: clean patch build
 
 clean:
-	rm -rf tinfoil-verifier.wasm
-
-update-release:
-	go get github.com/tinfoilanalytics/verifier@$(shell curl -sL https://api.github.com/repos/tinfoilanalytics/verifier/releases/latest | jq -r ".tag_name")
+	rm -rf public/tinfoil-verifier.wasm
 
 patch: # This is a hack. We should upstream this
 	go mod vendor
-	cp util_unix.go.patched vendor/github.com/in-toto/in-toto-golang/in_toto/util_unix.go
+	cp patches/util_unix.go.patched vendor/github.com/in-toto/in-toto-golang/in_toto/util_unix.go
+	cp patches/logger_wasm.go.patched vendor/github.com/google/logger/logger_wasm.go
+	patch vendor/marwan.io/wasm-fetch/fetch.go patches/fetch.patch
 
 build:
 	GOOS=js GOARCH=wasm go build \
