@@ -34,7 +34,15 @@ function verify() {
                     addLog(`Found latest release ${latestTag}`);
                     return digest;
                 } else {
-                    addLog("Failed to find EIF hash");
+                    const regex = /Digest: `([a-f0-9]{64})`/;
+                    const match = data.body.match(regex);
+                    if (match) {
+                        let digest = match[1];
+                        addLog(`Found latest release ${latestTag}`);
+                        return digest;
+                    } else {
+                        addLog("Failed to find EIF hash");
+                    }
                 }
             })
             .then(digest => {
