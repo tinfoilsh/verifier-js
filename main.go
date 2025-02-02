@@ -30,7 +30,7 @@ func verifyCode() js.Func {
 
 				bundleURL := "https://api.github.com/repos/" + repo + "/attestations/sha256:" + digest
 				log.Printf("Fetching bundle from %s...", bundleURL)
-				bundle, err := util.NewFetcher().Get(bundleURL)
+				bundle, err := util.Get(bundleURL)
 				if err != nil {
 					reject.Invoke(err.Error())
 					return
@@ -84,7 +84,7 @@ func verifyEnclave() js.Func {
 				attestationURL := u.String()
 
 				log.Printf("Fetching attestation from %s...", attestationURL)
-				attDoc, err := util.NewFetcher().Get(attestationURL)
+				attDoc, err := util.Get(attestationURL)
 				if err != nil {
 					reject.Invoke(err.Error())
 					return

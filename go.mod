@@ -2,7 +2,7 @@ module github.com/tinfoilanalytics/verifier-js
 
 go 1.23.2
 
-require github.com/tinfoilanalytics/verifier v0.0.12
+require github.com/tinfoilanalytics/verifier v0.0.13
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
