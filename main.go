@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"syscall/js"
 
-	"github.com/tinfoilanalytics/verifier/attestation"
-	"github.com/tinfoilanalytics/verifier/sigstore"
-	"github.com/tinfoilanalytics/verifier/util"
+	"github.com/tinfoilsh/verifier/attestation"
+	"github.com/tinfoilsh/verifier/sigstore"
+	"github.com/tinfoilsh/verifier/util"
 )
 
 //go:embed trusted_root.json
