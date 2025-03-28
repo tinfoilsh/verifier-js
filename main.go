@@ -91,7 +91,7 @@ func verifyEnclave() js.Func {
 				}
 
 				log.Println("Verifying attestation...")
-				measurements, certFP, err := attestation.VerifyAttestationJSON(attDoc)
+				verification, err := attestation.VerifyAttestationJSON(attDoc)
 				if err != nil {
 					errorMsg := fmt.Sprintf("Verification failed: %v", err)
 					reject.Invoke(errorMsg)
@@ -99,8 +99,8 @@ func verifyEnclave() js.Func {
 				}
 
 				result := map[string]interface{}{
-					"certificate": fmt.Sprintf("%x", certFP),
-					"measurement": measurements.Fingerprint(),
+					"certificate": fmt.Sprintf("%x", verification.CertFP),
+					"measurement": verification.Measurement.Fingerprint(),
 				}
 				resolve.Invoke(js.ValueOf(result))
 			}()
