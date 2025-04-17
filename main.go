@@ -99,7 +99,7 @@ func verifyEnclave() js.Func {
 				}
 
 				result := map[string]interface{}{
-					"certificate": fmt.Sprintf("%x", verification.CertFP),
+					"certificate": verification.PublicKeyFP,
 					"measurement": verification.Measurement.Fingerprint(),
 				}
 				resolve.Invoke(js.ValueOf(result))
