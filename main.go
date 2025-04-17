@@ -28,7 +28,7 @@ func verifyCode() js.Func {
 				repo := args[0].String()
 				digest := args[1].String()
 
-				bundleURL := "https://api.github.com/repos/" + repo + "/attestations/sha256:" + digest
+				bundleURL := "https://gh-attestation-proxy.tinfoil.sh/repos/" + repo + "/attestations/sha256:" + digest
 				log.Printf("Fetching bundle from %s...", bundleURL)
 				bundle, err := util.Get(bundleURL)
 				if err != nil {
