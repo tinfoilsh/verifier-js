@@ -10,63 +10,75 @@ function verify() {
         console.log(`${timestamp}`, ...messages, '\n');
     }
 
-    const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("tinfoil-verifier.wasm"), go.importObject).then((result) => {
-        go.run(result.instance);
+    fetch("/tinfoil-verifier.tag")
+        .then(response => response.text())
+        .then(version => {
+            addLog(`Loading verifier-js ${version}`);
 
-        let enclavePromise = verifyEnclave(hostname).then(result => {
-            addLog("Enclave attested certificate fingerprint:", result.certificate);
-            return result.measurement;
-        }).catch(error => {
-            addLog("Error verifying enclave:", error);
-        });
+            const go = new Go();
+            WebAssembly.instantiateStreaming(fetch(`/tinfoil-verifier-${version}.wasm`), go.importObject).then((result) => {
+                go.run(result.instance);
 
-        addLog(`Fetching latest release for ${repo}`);
-        let sigstorePromise = fetch("https://api.github.com/repos/" + repo + "/releases/latest")
-            .then(response => response.json())
-            .then(data => {
-                let latestTag = data.tag_name;
-
-                const regex = /EIF hash: ([a-f0-9]{64})/i;
-                const match = data.body.match(regex);
-                if (match) {
-                    let digest = match[1];
-                    addLog(`Found latest release ${latestTag}`);
-                    return digest;
+                if (verifierVersion === version) {
+                    addLog(`WARNING: verifier-js version mismatch. Requested ${version}, got ${verifierVersion}`);
                 } else {
-                    const regex = /Digest: `([a-f0-9]{64})`/;
-                    const match = data.body.match(regex);
-                    if (match) {
-                        let digest = match[1];
-                        addLog(`Found latest release ${latestTag}`);
-                        return digest;
-                    } else {
-                        addLog("Failed to find EIF hash");
-                    }
+                    addLog("Verifier version match");
                 }
-            })
-            .then(digest => {
-                return verifyCode(repo, digest)
-            })
-            .catch(error => {
-                addLog("Failed to fetch latest release: " + error);
-                throw error;
-            })
 
-        Promise.all([sigstorePromise, enclavePromise])
-            .then(([sigstoreMeasurement, enclaveMeasurement]) => {
-                addLog("Source:", sigstoreMeasurement);
-                addLog("Enclave:", enclaveMeasurement);
-                if (sigstoreMeasurement === enclaveMeasurement) {
-                    addLog("Verification successful! ✅");
-                } else {
-                    throw new Error("Verification failed: measurements do not match");
-                }
-            })
-            .catch(error => {
-                addLog("Verification failed: " + error);
+                let enclavePromise = verifyEnclave(hostname).then(result => {
+                    addLog("Enclave attested certificate fingerprint:", result.certificate);
+                    return result.measurement;
+                }).catch(error => {
+                    addLog("Error verifying enclave:", error);
+                });
+
+                addLog(`Fetching latest release for ${repo}`);
+                let sigstorePromise = fetch("https://api.github.com/repos/" + repo + "/releases/latest")
+                    .then(response => response.json())
+                    .then(data => {
+                        let latestTag = data.tag_name;
+        
+                        const regex = /EIF hash: ([a-f0-9]{64})/i;
+                        const match = data.body.match(regex);
+                        if (match) {
+                            let digest = match[1];
+                            addLog(`Found latest release ${latestTag}`);
+                            return digest;
+                        } else {
+                            const regex = /Digest: `([a-f0-9]{64})`/;
+                            const match = data.body.match(regex);
+                            if (match) {
+                                let digest = match[1];
+                                addLog(`Found latest release ${latestTag}`);
+                                return digest;
+                            } else {
+                                addLog("Failed to find EIF hash");
+                            }
+                        }
+                    })
+                    .then(digest => {
+                        return verifyCode(repo, digest)
+                    })
+                    .catch(error => {
+                        addLog("Failed to fetch latest release: " + error);
+                        throw error;
+                    })
+        
+                Promise.all([sigstorePromise, enclavePromise])
+                    .then(([sigstoreMeasurement, enclaveMeasurement]) => {
+                        addLog("Source:", sigstoreMeasurement);
+                        addLog("Enclave:", enclaveMeasurement);
+                        if (sigstoreMeasurement === enclaveMeasurement) {
+                            addLog("Verification successful! ✅");
+                        } else {
+                            throw new Error("Verification failed: measurements do not match");
+                        }
+                    })
+                    .catch(error => {
+                        addLog("Verification failed: " + error);
+                    });
             });
-    });
+        });
 }
 
 document.addEventListener("DOMContentLoaded", function () {
