@@ -13,7 +13,7 @@ Include required scripts:
 <!-- Load and use the verifier -->
 <script>
 const go = new Go(); // Create verifier instance
-WebAssembly.instantiateStreaming(fetch("tinfoil-verifier.wasm"), go.importObject)
+WebAssembly.instantiateStreaming(fetch("tinfoil-verifier-v0.0.4.wasm"), go.importObject)
   .then((result) => {
     go.run(result.instance);
     
@@ -37,7 +37,7 @@ Simply run `make` to build the module, which produces `public/tinfoil-verifier.w
 
 ## How It Works
 
-This verifier is compiled from the same Go source code as the main [Tinfoil Verifier](https://github.com/tinfoilanalytics/verifier), but targets WebAssembly to run directly in browsers. 
+This verifier is compiled from the same Go source code as the main [Tinfoil Verifier](https://github.com/tinfoilsh/verifier), but targets WebAssembly to run directly in browsers. 
 
 ```javascript
 // 1. Verify enclave attestation
