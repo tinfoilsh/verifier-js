@@ -15,5 +15,6 @@ build:
 		-trimpath \
 		-ldflags="-buildid= -X main.version=$(VERSION)" \
 		-o public/tinfoil-verifier-$(VERSION).wasm
+	cp public/tinfoil-verifier-$(VERSION).wasm public/tinfoil-verifier.wasm
 	echo "$(VERSION)" > public/tinfoil-verifier.tag
 	#cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" .
