@@ -14,6 +14,10 @@ When new versions are tagged, our GitHub Actions workflow automatically:
 
 This ensures that browser-based applications can perform an audit of Tinfoil without additional infrastructure dependencies. For more details on the underlying attestation process, see the [Tinfoil verification documentation](https://docs.tinfoil.sh/verification/comparison).
 
+**Try it now**: The hosted WASM verifier is available at [tinfoil.sh/verifier](https://tinfoil.sh/verifier)
+
+**Usage**: This WASM verifier is also integrated into [Tinfoil Chat](https://chat.tinfoil.sh) to provide transparent verification of the Tinfoil private chat. The verification center UI can be found in [tinfoil-chat/verifier](https://github.com/tinfoilsh/tinfoil-chat/tree/main/src/components/verifier).
+
 ## Quick Start
 
 Include required scripts:
