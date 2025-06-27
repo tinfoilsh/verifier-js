@@ -48,10 +48,6 @@ fetch("tinfoil-verifier.tag")
 </script>
 ```
 
-> **Note:** The verifier uses a tag file (`tinfoil-verifier.tag`) to specify the current version, ensuring you always load the correct WASM module without hardcoding version numbers.
-
-You can see a working example in the `public/index.html` file.
-
 ## How It Works
 
 This verifier is compiled from the same Go source code as the main [Tinfoil Verifier](https://github.com/tinfoilsh/verifier), but targets WebAssembly to run directly in browsers. 
