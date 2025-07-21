@@ -59,8 +59,13 @@ func verifyCode() js.Func {
 					reject.Invoke(err.Error())
 					return
 				}
+				measurementJSON, err := json.Marshal(measurement)
+				if err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
 
-				resolve.Invoke(js.ValueOf(measurement))
+				resolve.Invoke(js.ValueOf(string(measurementJSON)))
 			}()
 
 			return nil
@@ -100,9 +105,15 @@ func verifyEnclave() js.Func {
 					return
 				}
 
+				jsonMeasurement, err := json.Marshal(verification.Measurement)
+				if err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
+
 				result := map[string]interface{}{
 					"certificate": verification.PublicKeyFP,
-					"measurement": verification.Measurement,
+					"measurement": string(jsonMeasurement),
 				}
 				resolve.Invoke(js.ValueOf(result))
 			}()

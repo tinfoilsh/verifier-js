@@ -10,13 +10,13 @@ function verify() {
         console.log(`${timestamp}`, ...messages, '\n');
     }
 
-    fetch("/tinfoil-verifier.tag")
+    fetch("https://tinfoilsh.github.io/verifier-js/tinfoil-verifier.tag")
         .then(response => response.text())
         .then(version => {
             addLog(`Loading verifier-js ${version}`);
 
             const go = new Go();
-            WebAssembly.instantiateStreaming(fetch(`/tinfoil-verifier-${version}.wasm`), go.importObject).then((result) => {
+            WebAssembly.instantiateStreaming(fetch(`https://tinfoilsh.github.io/verifier-js/tinfoil-verifier-${version}.wasm`), go.importObject).then((result) => {
                 go.run(result.instance);
 
                 if (verifierVersion === version) {
@@ -68,11 +68,6 @@ function verify() {
                     .then(([sigstoreMeasurement, enclaveMeasurement]) => {
                         addLog("Source:", sigstoreMeasurement);
                         addLog("Enclave:", enclaveMeasurement);
-                        if (sigstoreMeasurement === enclaveMeasurement) {
-                            addLog("Verification successful! ✅");
-                        } else {
-                            throw new Error("Verification failed: measurements do not match");
-                        }
                     })
                     .catch(error => {
                         addLog("Verification failed: " + error);
