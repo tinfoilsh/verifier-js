@@ -32,7 +32,7 @@ func verifyCode() js.Func {
 
 				bundleURL := "https://gh-attestation-proxy.tinfoil.sh/repos/" + repo + "/attestations/sha256:" + digest
 				log.Printf("Fetching bundle from %s...", bundleURL)
-				bundle, err := util.Get(bundleURL)
+				bundle, _, err := util.Get(bundleURL)
 				if err != nil {
 					reject.Invoke(err.Error())
 					return
@@ -60,7 +60,7 @@ func verifyCode() js.Func {
 					return
 				}
 
-				resolve.Invoke(js.ValueOf(measurement.Fingerprint()))
+				resolve.Invoke(js.ValueOf(measurement))
 			}()
 
 			return nil
@@ -86,7 +86,7 @@ func verifyEnclave() js.Func {
 				attestationURL := u.String()
 
 				log.Printf("Fetching attestation from %s...", attestationURL)
-				attDoc, err := util.Get(attestationURL)
+				attDoc, _, err := util.Get(attestationURL)
 				if err != nil {
 					reject.Invoke(err.Error())
 					return
@@ -102,7 +102,7 @@ func verifyEnclave() js.Func {
 
 				result := map[string]interface{}{
 					"certificate": verification.PublicKeyFP,
-					"measurement": verification.Measurement.Fingerprint(),
+					"measurement": verification.Measurement,
 				}
 				resolve.Invoke(js.ValueOf(result))
 			}()
