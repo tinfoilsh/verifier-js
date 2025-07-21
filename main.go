@@ -15,6 +15,8 @@ import (
 	"github.com/tinfoilsh/verifier/util"
 )
 
+var version = "dev" // set by build process
+
 //go:embed trusted_root.json
 var trustedRootJSON []byte
 
@@ -115,5 +117,6 @@ func verifyEnclave() js.Func {
 func main() {
 	js.Global().Set("verifyEnclave", verifyEnclave())
 	js.Global().Set("verifyCode", verifyCode())
+	js.Global().Set("verifierVersion", version)
 	<-make(chan struct{})
 }
