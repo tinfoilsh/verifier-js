@@ -114,6 +114,7 @@ func verifyEnclave() js.Func {
 				result := map[string]interface{}{
 					"tls_public_key":  verification.TLSPublicKeyFP,
 					"hpke_public_key": verification.HPKEPublicKey,
+					"certificate":     verification.TLSPublicKeyFP, // Fallback for backwards compatibility
 					"measurement":     string(jsonMeasurement),
 				}
 				resolve.Invoke(js.ValueOf(result))
