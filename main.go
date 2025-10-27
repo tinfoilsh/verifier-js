@@ -11,6 +11,7 @@ import (
 	"syscall/js"
 
 	"github.com/tinfoilsh/verifier/attestation"
+	"github.com/tinfoilsh/verifier/client"
 	"github.com/tinfoilsh/verifier/sigstore"
 	"github.com/tinfoilsh/verifier/util"
 )
@@ -127,9 +128,36 @@ func verifyEnclave() js.Func {
 	})
 }
 
+func verify() js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		handler := js.FuncOf(func(_ js.Value, promiseArgs []js.Value) interface{} {
+			resolve := promiseArgs[0]
+			reject := promiseArgs[1]
+
+			go func() {
+				enclaveHostname := args[0].String()
+				repo := args[1].String()
+
+				groundTruthJSON, err := client.VerifyJSON(enclaveHostname, repo)
+				if err != nil {
+					reject.Invoke(err.Error())
+					return
+				}
+
+				resolve.Invoke(js.ValueOf(groundTruthJSON))
+			}()
+
+			return nil
+		})
+
+		return js.Global().Get("Promise").New(handler)
+	})
+}
+
 func main() {
 	js.Global().Set("verifyEnclave", verifyEnclave())
 	js.Global().Set("verifyCode", verifyCode())
+	js.Global().Set("verify", verify())
 	js.Global().Set("verifierVersion", version)
 	<-make(chan struct{})
 }
