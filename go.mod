@@ -2,7 +2,7 @@ module github.com/tinfoilsh/verifier-js
 
 go 1.25.1
 
-require github.com/tinfoilsh/verifier v0.10.1
+require github.com/tinfoilsh/verifier v0.10.2
 
 require (
 	cel.dev/expr v0.24.0 // indirect
