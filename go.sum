@@ -1211,8 +1211,8 @@ github.com/theupdateframework/go-tuf/v2 v2.1.1 h1:OWcoHItwsGO+7m0wLa7FDWPR4oB1cj
 github.com/theupdateframework/go-tuf/v2 v2.1.1/go.mod h1:V675cQGhZONR0OGQ8r1feO0uwtsTBYPDWHzAAPn5rjE=
 github.com/tinfoilsh/go-sev-guest v0.0.0-20250704193550-c725e6216008 h1:utg5iGJKOGTefc5gWxH2+XaXpra8R1utGA3x1WO61AY=
 github.com/tinfoilsh/go-sev-guest v0.0.0-20250704193550-c725e6216008/go.mod h1:SK9vW+uyfuzYdVN0m8BShL3OQCtXZe/JPF7ZkpD3760=
-github.com/tinfoilsh/verifier v0.10.4 h1:utr1datoFtWOZkNV8Z0iiuOHL68B6nnrE87Dx5I9oJw=
-github.com/tinfoilsh/verifier v0.10.4/go.mod h1:7lz201+QcLl68ve5/5YstsQcm3MSXVETJewlznrwpqc=
+github.com/tinfoilsh/verifier v0.10.5 h1:ifOit7c9+2X19JZTpUwfjNbmBYM0jLFwQmWZeolJD6k=
+github.com/tinfoilsh/verifier v0.10.5/go.mod h1:7lz201+QcLl68ve5/5YstsQcm3MSXVETJewlznrwpqc=
 github.com/tink-crypto/tink-go-awskms/v2 v2.1.0 h1:N9UxlsOzu5mttdjhxkDLbzwtEecuXmlxZVo/ds7JKJI=
 github.com/tink-crypto/tink-go-awskms/v2 v2.1.0/go.mod h1:PxSp9GlOkKL9rlybW804uspnHuO9nbD98V/fDX4uSis=
 github.com/tink-crypto/tink-go-gcpkms/v2 v2.2.0 h1:3B9i6XBXNTRspfkTC0asN5W0K6GhOSgcujNiECNRNb0=
