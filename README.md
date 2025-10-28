@@ -36,12 +36,17 @@ fetch("tinfoil-verifier.tag")
     WebAssembly.instantiateStreaming(fetch(`tinfoil-verifier-${version}.wasm`), go.importObject)
       .then((result) => {
         go.run(result.instance);
-        
-        // Verify an enclave
-        verifyEnclave("inference.example.com")
-          .then(result => {
-            console.log("Certificate fingerprint:", result.certificate);
-            console.log("Enclave measurement:", result.measurement);
+
+        // Complete end-to-end verification (recommended)
+        verify("inference.example.com", "tinfoilsh/confidential-llama-qwen")
+          .then(groundTruthJSON => {
+            const groundTruth = JSON.parse(groundTruthJSON);
+            console.log("TLS Public Key:", groundTruth.tls_public_key);
+            console.log("HPKE Public Key:", groundTruth.hpke_public_key);
+            console.log("Verification successful!");
+          })
+          .catch(error => {
+            console.error("Verification failed:", error);
           });
       });
   });
@@ -50,7 +55,44 @@ fetch("tinfoil-verifier.tag")
 
 ## How It Works
 
-This verifier is compiled from the same Go source code as the main [Tinfoil Verifier](https://github.com/tinfoilsh/verifier), but targets WebAssembly to run directly in browsers. 
+This verifier is compiled from the same Go source code as the main [Tinfoil Verifier](https://github.com/tinfoilsh/verifier), but targets WebAssembly to run directly in browsers.
+
+### Complete Verification (Recommended)
+
+Use the `verify()` function for complete end-to-end verification that performs all steps atomically:
+
+```javascript
+// Complete end-to-end verification
+const groundTruthJSON = await verify("inference.example.com", "tinfoilsh/confidential-llama-qwen");
+const groundTruth = JSON.parse(groundTruthJSON);
+
+// The ground truth contains:
+// - tls_public_key: TLS certificate fingerprint
+// - hpke_public_key: HPKE public key for E2E encryption
+// - digest: GitHub release digest
+// - code_measurement: Expected code measurement from GitHub
+// - enclave_measurement: Actual runtime measurement from enclave
+// - hardware_measurement: TDX platform measurements (if applicable)
+// - code_fingerprint: Fingerprint of code measurement
+// - enclave_fingerprint: Fingerprint of enclave measurement
+
+console.log("TLS Public Key:", groundTruth.tls_public_key);
+console.log("HPKE Public Key:", groundTruth.hpke_public_key);
+console.log("Verification successful - measurements match!");
+```
+
+The `verify()` function automatically:
+1. Fetches the latest release digest from GitHub
+2. Verifies code provenance using Sigstore/Rekor
+3. Performs runtime attestation against the enclave
+4. Verifies hardware measurements (for TDX platforms)
+5. Compares code and runtime measurements using platform-specific logic
+
+If any step fails, an error is thrown with details about which step failed.
+
+### Manual Step-by-Step Verification
+
+For more control, you can perform individual verification steps:
 
 ```javascript
 // 1. Verify enclave attestation
@@ -62,7 +104,7 @@ const repo = "org/repo";
 const codeResult = await verifyCode(repo, expectedDigest);
 console.log("Code measurement:", codeResult);
 
-// 3. Compare measurements
+// 3. Compare measurements manually
 if (enclaveResult.measurement === codeResult) {
   console.log("Verification successful!");
 } else {
