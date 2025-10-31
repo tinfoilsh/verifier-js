@@ -1,3 +1,5 @@
+> **Note: This repository has been archived. All code and functionality has been moved to [tinfoilsh/verifier](https://github.com/tinfoilsh/verifier). Please refer to that repository for the latest updates and contributions.**
+
 # Tinfoil Verifier for JavaScript
 
 [![Build Status](https://github.com/tinfoilanalytics/verifier-js/workflows/Build%20and%20Deploy/badge.svg)](https://github.com/tinfoilanalytics/verifier-js/actions)
